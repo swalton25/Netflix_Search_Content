@@ -1,0 +1,143 @@
+
+/**
+ * A Filter class that represents a single filter. (You might be tempted to store the filters as just strings, but making a
+ * separate class will allow you to more cleanly access each element of the filter. Note that all the filters are in this
+ * format: field relation target) Every time the user adds a filter, a new Filter object should be created and
+ * placed in a list. Removing a filter should remove it from this list.
+ * @version (11/14/2013)
+ */
+public class myFilter
+{
+    int select;
+    private String field;
+    private double target;
+
+    public  myFilter(int i, String a)//overloaded constructers easy way of making new filters 
+    {
+        select=i;
+        field=a;
+    }
+
+    public  myFilter(int i, double a)
+    {
+        select=i;
+        target=a;
+    }
+
+    public  myFilter(int i, int a)
+    {
+        select=i;
+        target=a;
+    }
+
+    public boolean theFilter(Media enter)//returns true when the filter  go through to the user
+    {
+        switch(select)
+        {
+            case 1: 
+                if (enter.getTheSelection()=="Movie")
+                {
+                    return true;
+                }
+                else 
+                {
+                    return false;
+                }
+                
+            case 2: 
+                if (enter.getTheSelection()=="Series")
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            case 3:
+                if(enter.getTheTitle().equals(field))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            case 4:
+                if(enter.getTheYear()>target) 
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            case 5:
+                if(enter.getTheYear()< target)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            case 6:
+                if(enter.getTheRating()> target)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            case 7:
+                if(enter.getTheRating()< target)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                
+            default:
+                return false;
+            
+        }
+    }
+    
+    public String toString()//makes a to string to show the users what filters they have
+    {
+        String relation="Filtering Out ";
+        switch(select)
+        {
+            case 1:
+                relation+="The Series.";
+                return relation;
+            case 2: 
+                relation+="The Movies.";
+            case 3:
+                relation+="All not titled: "+field+".";
+                return relation;
+            case 4:
+                relation+="Before: "+target+".";
+                return relation;
+            case 5:
+               relation+="After: "+target+".";
+                return relation;
+            case 6:
+               relation+="Rated lower: "+target+".";
+                return relation;
+            case 7:
+                relation+="Rated higher: "+target+".";
+                return relation;
+            default:
+                return "";
+            
+            }
+        }
+}
