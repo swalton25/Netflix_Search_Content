@@ -1,0 +1,53 @@
+/**
+ * In this project you’ll be writing some software that parses (reads) the Netflix data file and allows the user to apply and
+ * remove filters to customize the results. For example, the user may want to see a list of all the TV series after 1999 that are
+ * rated higher than 4.0 stars. This would be expressed using the following three filters
+ * @version (11/14/2013)
+ */
+public class Movie extends Media
+{
+    private String theTitle;
+    private int theYear;
+    private double theRating;
+    private int theLength;
+    
+    public Movie(String ti, int ye, double ra, int le)
+    {
+        theTitle=ti;
+        theYear=ye;
+        theRating=ra;
+        theLength=le;
+    }
+    
+    public String getTheTitle()
+    {
+        return  theTitle;
+    }
+    
+    public int getTheYear()
+    {
+        return theYear;
+    }
+    
+    public double getTheRating()
+    {
+        return theRating;
+    }
+    
+    public int getTheLength()
+    {
+        return theLength;
+    }
+    
+    public String getTheSelection()
+    {
+        return "Movie";
+    }
+    
+    public String toString()
+    {
+        String input="";
+        input+=theTitle+" ("+theYear+") | "+theRating+" Stars "+theLength+" Minutes";
+        return input;
+    }
+}
