@@ -1,0 +1,158 @@
+
+/**
+ * A NetflixFileReader class that handles reading the provided data file. For each line of the file, a new Media
+ * object (either Movie or Series) should be created and added to a list of Media objects. This class should include
+ * a method that returns the finished list.
+ * @version (11/14/2013)
+ */
+
+import java.io.*;
+import java.util.*;
+
+public class NetflixFileReader
+{
+    public ArrayList<Media> readFile() throws FileNotFoundException,IOException//goes through and makes a new arrayList with each line a new entry
+    {
+        ArrayList<String> thecontents= new ArrayList();// this contains the  strings with each position being a different line of String
+        ArrayList<Media> solutions = new ArrayList();//the refined solutions
+        FileInputStream fstream = new FileInputStream("Netflix.txt");// my data file being upload from this method
+        DataInputStream in = new DataInputStream(fstream);
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        String strLine;
+        while ((strLine = br.readLine()) != null)   {
+            thecontents.add(strLine);//adds each line of the file to contents
+        }
+        in.close();// closing the file once it is finish
+        solutions=sortContents(thecontents);//calls sortContents, a method that converts an arraylist of strings to an arraylist of media objects
+        return solutions;
+    }
+
+    public String[] FindingFilters(String str)//the string is splt apart into a bunch of substrings each with a chunk of data we need to create a media object
+        {String theTitle= "";
+        String theYear="";
+        String theStars="";
+        String length="";
+        String[] empty=new String [5];// an empty array of strings that returning
+        int searching=0;//searching of what we looking for
+        int theStart=0;//the start section of substrings
+        int myTime=0;//A default variable
+        int lastParen=str.lastIndexOf('(');//holds the last index of ( so that I can actually find the year in case there is a ( in the title
+        int lastComma=str.lastIndexOf(',');//similar to above statement
+        boolean isMovie=false;
+        if(str.charAt(str.length()-1)=='m')//the whole length without getting any characters in it
+        {
+            isMovie=true;
+        }
+        for (int i=0; i<str.length(); i++)
+        {
+            if(i==lastParen)//checks to see if the pointer is at the start of the year
+
+            {
+                theTitle+=str.substring(theStart,(i-1));//sets title equal 
+                theStart=i+1;//skips over the paren and changing start b
+                searching++;
+            }
+            if((searching==1)&&(str.charAt(i)==')'))//check and see if we  hit the end of our year
+            {
+                theYear+=str.substring(theStart,(i));//takes the  parens
+                theStart=i+5;//trying to find  get the rating
+                searching++;
+            }
+            if((searching==2)&&(str.charAt(i)=='s'))//checks to see if our pointer is at the 's' in theStars
+            {
+                theStars+=str.substring(theStart,i-1);
+                theStart=i+7;
+                searching++;
+            }
+            if((searching==2)&&(i==lastComma))// go and make an empty string
+            {
+                theStars="";
+                theStart=lastComma+2;
+                searching++;
+            }
+            if((searching==3)&&(isMovie==true))//the reason we need different ways to do series and movies is because movies are xhrsymin while series are xep and we don't want that h in there
+            {
+                if(str.charAt(i)=='h')
+                {
+                    myTime+=(Integer.parseInt(str.substring(theStart,i)));
+                    myTime*=60;//I just want it in minutes so I can use one set of numbers
+                    theStart=(i+3);
+                }
+                if(str.charAt(i)=='m')
+                {
+                    myTime+=Integer.parseInt(str.substring(theStart,i));
+                }
+            }
+            if((searching==3)&&(isMovie==false)&&((str.charAt(i)==('S'))||(str.charAt(i)==('E'))))//this goes untill we hit 'Seasons' or 'Episodes'
+            {
+                myTime+=Integer.parseInt(str.substring(theStart,i-1));
+            }
+
+        }
+        if(isMovie==true)// object is in the last position 
+        {
+            empty[4]="M";
+        }
+        else
+        {empty[4]="S";
+        }
+        if(theYear.length()>4)//only want the first 4
+        {
+            theYear=  theYear.substring(0,4);
+        }
+        empty[0]=theTitle;
+        empty[1]=theYear;
+        empty[2]=theStars;
+        empty[3]=""+myTime;
+        return empty;
+    }
+
+    public ArrayList<Media> sortContents(ArrayList<String> str)//converts the string into a list of media objects
+    {
+        String title;
+        int theYear;
+        double theRating;
+        int theTime;
+        String[] myStrings= new String[5];
+        ArrayList<Media> solutions= new ArrayList<Media>();
+        for (int i=0; i<str.size(); i++)//goes through each item in the arraylist and orginizes them
+        {
+
+            myStrings=FindingFilters(str.get(i));//gets the array of data from the first line so it can be maipulated
+            if( myStrings[1].length()>0)//these are all if/else to account for empty strings
+            {
+                theYear=Integer.parseInt( myStrings[1]);//converts the year to ints instead of a string, we do simmilar things with length and time
+            }
+            else
+            {
+                theYear=0;
+            }
+            if( myStrings[2].length()>0)
+            {
+                theRating=Double.parseDouble( myStrings[2]);
+            }
+            else
+            {
+                theRating=0;
+            }
+            if( myStrings[3].length()>0)
+            {
+                theTime=Integer.parseInt( myStrings[3]);
+            }
+            else
+            {
+                theTime=0;
+            }
+            if( myStrings[4]=="M")//finally creates a new object and puts it into the solutions array.
+            {
+                solutions.add(new Movie( myStrings[0],theYear,theRating,theTime));
+            }
+            else
+            {
+                solutions.add(new Series( myStrings[0],theYear,theRating,theTime));
+            }
+        }
+        return solutions;
+    }
+
+}
