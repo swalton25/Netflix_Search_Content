@@ -1,0 +1,10 @@
+
+
+public class NetflixClient
+{
+    public static void main(String[] args)
+    {
+        theMenu theValue = new theMenu();
+        theValue.SetupFile();//and everything else is handled in the menu
+    }
+}
