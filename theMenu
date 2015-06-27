@@ -1,0 +1,240 @@
+
+/**
+ * Implement error checking on all user inputs, including exception handling where appropriate. Your software
+ * should never crash due to user input! Examples of error checking that should be implemented:
+ * Ensuring the user cannot enter an invalid filter
+ * Ensuring the user cannot remove a filter that doesn’t exist
+ * Ensuring the user cannot enter an invalid entry after any menu
+ * @version (11/14/2013)
+ */
+import java. io.*;
+import java .util.*;
+public class theMenu
+{
+    private Scanner input= new Scanner(System.in);
+    private ArrayList<Media> masterList=new ArrayList<Media>();
+    private ArrayList<Media> currentList=new ArrayList<Media>();
+    private ArrayList<myFilter> filterList=new ArrayList<myFilter>();
+    private NetflixFileReader myReader= new NetflixFileReader();
+    private int select=-1;
+    public void SetupFile()//runs readFile to set up the masterList, I think I need this because I can't try/catch without making methods and readfile throws exceptions
+    {
+        try
+        {
+            masterList=myReader.readFile();
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println("Netflix.txt not found, please make sure you have it.");
+        }
+        catch(IOException e)
+        {
+            System.out.println("Java IO exception has been thrown");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Some unknown error "+e+" has occoured");
+        }
+        mainMenu();//nearly every function calls main menu at the start so that the user can keep on making changes to the lists
+
+    }
+
+    public void mainMenu()//links the user to specific methods depending on what they need
+    {
+        select=-1;
+        while (select==-1)
+        {
+            try
+            {
+                System.out.println("[1] Enter the Filters. ");
+                System.out.println("[2] Enter the Remove Filter. ");
+                System.out.println("[3] Enter the Search. ");
+                System.out.println("[0] quite.");
+                select=input.nextInt();
+            }
+            catch(InputMismatchException e)
+            {
+                System.out.println("Try Again: Please enter a digit");
+                input=new Scanner(System.in);
+            }
+            if(select>3||select<0)
+            {
+                System.out.println("Try Again: Please only input integers 0-3");
+                select=-1;
+            }
+        }
+        switch(select)
+        {
+            case 1: filterMenu();
+            break;
+            case 2: removeFilter();
+            break;
+            case 3: search();
+            break;
+        }
+    }
+
+    public void search()//goes through the masterlist and takes out everyting that is blocked by your filters
+    {
+        currentList.clear();//clears everyting from previous runs
+        boolean find=true;
+        for(int i=0; i<masterList.size(); i++)//goes through the masterlist
+        {
+            for(int j=0; j<filterList.size(); j++)//goes through the filterlist
+            {
+                if(filterList.get(j).theFilter(masterList.get(i))==false)
+                {
+                    find=false;
+                }
+            }
+            if(find==true)
+            {
+                currentList.add(masterList.get(i));//adds to the currentlist everyting not blocked by filters
+            }
+            else
+            {
+                find=true;
+            }
+        }
+        for(int i=0; i<currentList.size(); i++)
+        {
+            System.out.println(currentList.get(i));//prints the results of the search
+        }
+        mainMenu();//goes back to main menu
+
+    }
+
+    public void removeFilter()//removes filters from your filterlist
+    {
+        select=-2;
+        while (select==-2)
+        {
+            try
+            {
+                System.out.println("Current filters enabled:");
+                for(int i=0; i<filterList.size(); i++)
+                {
+                    System.out.println(filterList.get(i));//lets user know what filters they have and what they do
+                }
+                System.out.println("Enter the filter you want to remove? ");
+                System.out.println("[The first filter starts [0,-1] to exit]");
+                select=input.nextInt();
+            }
+            catch(InputMismatchException e)
+            {
+                System.out.println("Try again: Please enter a digit");
+                input=new Scanner(System.in);
+            }
+            if(select>=filterList.size()||select<-1)
+            {
+                System.out.println("Try again: Enter only input integers 0-"+(filterList.size()-1)+" or -1 to exit.");
+                select=-2;
+            }
+        }
+        if(select!=-1)
+        {
+            filterList.remove(select);
+            System.out.println("Filter removed correctly.");
+        }
+        mainMenu();
+    }
+
+    public void filterMenu()//lets the user add a filter
+    {
+        select=-1;
+        String title;
+        while (select==-1)
+        {
+            try
+            {
+                System.out.println("Which filter you looking for ? 1)Only movies 2)Only series 3)Filter by title 4) Only years >x 5) only years <x 6) Rating >x 7)Rating <x");
+                System.out.println("[1] MOVIES");
+                System.out.println("[2] SERIES");
+                System.out.println("[3] TITLES");
+                System.out.println("[4] Years >x [5] years <x [6] Rating >x [7]Rating <x");
+                select=input.nextInt();
+            }
+            catch(InputMismatchException e)
+            {
+                System.out.println("Try again: Please enter a digit");
+                input=new Scanner(System.in);
+            }
+            if(select>7||select<0)
+            {
+                System.out.println("Try Again: Please only input integers 0-7");
+                select=-1;
+            }
+        }
+        switch(select)//creates new filters
+        {
+            case 1: filterList.add(new myFilter(1,""));
+            break;
+            case 2: filterList.add(new myFilter(2,""));
+            break;
+            case 3:System.out.println("Enter the title of the movie you are searching for exactly");
+            input.nextLine();
+            title=input.nextLine();
+            filterList.add(new myFilter(3,title));
+            break;
+            case 4: filterList.add(new myFilter(4,inputYear()));//each inputX method calls another method to get information pretaining to that filter
+            break;
+            case 5: filterList.add(new myFilter(5,inputYear()));
+            break;
+            case 6: filterList.add(new myFilter(6,inputRating()));
+            break;
+            case 7: filterList.add(new myFilter(7,inputRating()));
+            break;
+        }
+        System.out.println("Filter Added Correctly");
+        mainMenu();
+
+    }
+
+    public int inputYear()//gets the year from the user
+    {
+        int year=-1;
+        while (year<0)
+        {
+            try
+            {
+                System.out.println("What year do you want to start at?");
+                year=input.nextInt();
+            }
+            catch(InputMismatchException e)
+            {
+                System.out.println("Try again: Please enter a digit");
+                input=new Scanner(System.in);
+            }
+            if(year<0)
+            {
+                System.out.println("Try again: Please input years >0");//there should never be a negative year but there might be a year 0 when I don't have a year
+                year=-1;
+            }
+        }
+        return year;
+    }
+
+    public double inputRating()///gets the rating the user is looking for
+    {
+        double rating=-1;
+        while (rating<0)
+        {
+            try
+            {
+                System.out.println("What rating do you want to start at?");
+                rating=input.nextDouble();
+            }
+            catch(InputMismatchException e)
+            {
+                System.out.println("Try again: Please enter a digit");
+                input=new Scanner(System.in);
+            }
+            if(rating<0)
+            {
+                System.out.println("Try again: Please input a rating >0");//don't know the max on ratings
+                rating=-1;
+            }
+        }
+        return rating;
+    }
+}
