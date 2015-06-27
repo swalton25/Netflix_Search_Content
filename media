@@ -1,0 +1,16 @@
+
+/**
+ * An abstract Media class, with concrete Movie and Series subclasses. These classes should be designed to hold
+ * all the relevant information about an item that can be obtained from the data file.
+ * @version (11/14/2013)
+ */
+public abstract class Media//abstract media class, is a method that allow me make as many arrays I want
+{
+    public abstract String getTheTitle();
+    
+    public abstract int getTheYear();
+    
+    public abstract double getTheRating();
+    
+    public abstract String getTheSelection();
+}
